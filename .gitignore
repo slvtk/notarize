@@ -132,4 +132,5 @@ mvnw
 **/hs_err_pid*
 
 # custom files
-/uploads/**
+**/uploads/**
+**/*.yml

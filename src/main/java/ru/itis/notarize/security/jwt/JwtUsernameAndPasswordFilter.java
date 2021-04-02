@@ -3,6 +3,7 @@ package ru.itis.notarize.security.jwt;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -19,6 +20,8 @@ import java.util.Date;
 public class JwtUsernameAndPasswordFilter extends UsernamePasswordAuthenticationFilter {
 
     private final AuthenticationManager authenticationManager;
+    @Value("${yaml.tokenKey}")
+    private String TOKEN_KEY;
 
     public JwtUsernameAndPasswordFilter(AuthenticationManager authenticationManager) {
         this.authenticationManager = authenticationManager;
@@ -46,12 +49,11 @@ public class JwtUsernameAndPasswordFilter extends UsernamePasswordAuthentication
                                             HttpServletResponse response,
                                             FilterChain chain,
                                             Authentication authResult) {
-        String key = "securesecuresecuresecuresecuresecuresecuresecure";
         String token = Jwts.builder().setSubject(authResult.getName())
                 .claim("authorities", authResult.getAuthorities())
                 .setIssuedAt(new Date())
                 .setExpiration(java.sql.Date.valueOf(LocalDate.now().plusWeeks(2)))
-                .signWith(Keys.hmacShaKeyFor(key.getBytes())).compact();
+                .signWith(Keys.hmacShaKeyFor(TOKEN_KEY.getBytes())).compact();
 
         response.addHeader("Authorization", "Bearer " + token);
     }

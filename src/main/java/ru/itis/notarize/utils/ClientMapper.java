@@ -5,4 +5,6 @@ import ru.itis.notarize.models.Client;
 
 public interface ClientMapper {
     Client fromDto(ClientDto clientDto);
+
+    ClientDto toDto(Client client);
 }

@@ -24,4 +24,15 @@ public class ClientMapperImpl implements ClientMapper {
                 clientDto.getAge()
         );
     }
+
+    @Override
+    public ClientDto toDto(Client client) {
+        return new ClientDto(
+                client.getUsername(),
+                client.getPassword(),
+                client.getFullName(),
+                client.getCity(),
+                client.getAge()
+        );
+    }
 }

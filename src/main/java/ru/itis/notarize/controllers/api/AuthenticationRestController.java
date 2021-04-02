@@ -8,7 +8,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import ru.itis.notarize.dto.ClientDto;
 import ru.itis.notarize.dto.NotaryDto;
-import ru.itis.notarize.models.Client;
 import ru.itis.notarize.models.Notary;
 import ru.itis.notarize.services.ClientService;
 import ru.itis.notarize.services.NotaryService;
@@ -22,8 +21,8 @@ public class AuthenticationRestController {
     private final NotaryService notaryService;
 
     @PostMapping("clients/signup")
-    public ResponseEntity<Client> clientSignUp(@RequestBody ClientDto clientDto) {
-        return ResponseEntity.ok(clientService.signUp(clientDto));
+    public ClientDto clientSignUp(@RequestBody ClientDto clientDto) {
+        return clientService.signUp(clientDto);
     }
 
     @PostMapping("notaries/signup")

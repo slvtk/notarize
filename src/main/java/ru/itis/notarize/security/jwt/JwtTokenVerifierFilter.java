@@ -1,9 +1,13 @@
 package ru.itis.notarize.security.jwt;
 
 import com.google.common.base.Strings;
-import io.jsonwebtoken.*;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.JwtException;
+import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
+import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -15,10 +19,17 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 
 @Slf4j
+@NoArgsConstructor
 public class JwtTokenVerifierFilter extends OncePerRequestFilter {
+    @Value("${yaml.tokenKey}")
+    private String TOKEN_KEY;
+
     @Override
     protected void doFilterInternal(HttpServletRequest req,
                                     HttpServletResponse resp,
@@ -28,17 +39,17 @@ public class JwtTokenVerifierFilter extends OncePerRequestFilter {
             filterChain.doFilter(req, resp);
             return;
         }
-        String key = "securesecuresecuresecuresecuresecuresecuresecure";
         String token = req.getHeader("Authorization").replace("Bearer ", "");
         try {
-            Jws<Claims> claimsJws = Jwts.parser().setSigningKey(Keys.hmacShaKeyFor(key.getBytes())).parseClaimsJws(token);
-            Claims claims = claimsJws.getBody();
+            Claims claims = Jwts.parserBuilder()
+                    .setSigningKey(Keys.hmacShaKeyFor(TOKEN_KEY.getBytes())).build()
+                    .parseClaimsJws(token).getBody();
 
             String username = claims.getSubject();
-            List<String> authorities = (ArrayList<String>) claims.get("authorities");
 
-            List<SimpleGrantedAuthority> simpleGrantedAuthorities = Collections.singletonList(new SimpleGrantedAuthority(authorities.stream().findFirst().orElse(null)));
+            String role = ((ArrayList<String>) claims.get("authorities")).stream().findFirst().orElse(null);
 
+            List<SimpleGrantedAuthority> simpleGrantedAuthorities = Collections.singletonList(new SimpleGrantedAuthority(role));
             Authentication authentication = new UsernamePasswordAuthenticationToken(
                     username,
                     null,
